@@ -1,154 +1,24 @@
-import math
 import time
 
-from enum import Enum, auto
-from functools import wraps
 from multiprocessing import Process
-from typing import Callable, List, Optional
+from typing import List, Optional
 
 from getkey import getkey, keys
 
-# Let's do a couple questions before getting into the main project
 
-# Question 1: Modify the following class so that when meow is called
-# the member variable `info` is printed
+instructions = " - Move: A,D,←,→  Attack: W,↑,SPACE -"
+header_func = lambda health, attack_damage, boss_health: f" - HP:{health:02.0f} - DMG:{attack_damage:02.0f} - BOSS:{boss_health:.0f} -"
+footer_func = lambda rounds, score, framerate, elapsed: f" - r:{int(rounds)} s:{score} fps:{framerate:.0f} - t:{elapsed:.0f} -"
 
+def clear_screen():
+  print(end="\033c", flush=True)
 
-class Cat:
-  info = "Meow meow meow"
+def clamp(x, a, b):
+  assert (a <= b)
+  return max(a, min(b, x))
 
-  def meow(self):
-    # print("The cat says... bark?")
-    print(self.info)
-
-
-my_weird_cat = Cat()
-my_weird_cat.meow()
-print()
-print()
-
-# Question 2: Write a class to represent the blahaj, this is an open-ended question,
-# add whatever functions or members you would like, think about what's special about
-# your blahaj, and what your blahaj would be able to do.
-
-
-class Size(Enum):
-  SMALL = auto()
-  MEDIUM = auto()
-  LARGE = auto()
-  EXTRA_LARGE = auto()
-
-
-def usage(func: Callable) -> Callable:
-
-  @wraps(func)
-  def wrapper(*args, **kwargs):
-    if isinstance(args[0], Plush):
-      args[0].fluffiness = args[0].fluffiness * 0.9
-    return func(*args, **kwargs)
-
-  return wrapper
-
-
-class UsageMeta(type):
-
-  def __new__(cls, clsname, bases, clsdict):
-    for name, method in clsdict.items():
-      if callable(method):
-        clsdict[name] = usage(method)
-    return super().__new__(cls, clsname, bases, clsdict)
-
-
-class Plush(metaclass=UsageMeta):
-  fluffiness = 1.0
-
-  def __init__(self,
-               name: str,
-               size: Size = Size.MEDIUM,
-               color: str = "neutral"):
-    self.name = name
-    self._size = size
-    self.color = color
-
-  def stuff(self):
-    print("Plush is restuffed to 100%!")
-
-  def __str__(self) -> str:
-    return f"{self.name} is a {self.color} plush."
-
-  def change_color(self, color: str):
-    self.color = color
-    print(f"{self.name} was recolored to be {self.color}!")
-
-  def squish(self):
-    size = self.size.name.title()
-    plush = self.__class__.__name__
-    print(f"""Oh yesh {self.name} is a fluffy {size} {plush} :3
- - ({self.fluffiness*100:.0f}% fluffiness).""")
-
-  @property
-  def size(self):
-    return self._size
-
-  @size.setter
-  def size(self, size: Size = Size.MEDIUM):
-    self._size = size
-    print(f"{self.name} was resized to be {self.size.name.title()}!")
-
-
-class Blahaj(Plush):
-  cute = True
-
-  def __init__(self,
-               name,
-               size: Size = Size.MEDIUM,
-               color: Optional[str] = None):
-    super().__init__(name, size)
-
-    if color is not None:
-      self.color = color
-
-  def stuff(self):
-    x = self.fluffiness
-    self.fluffiness = 1.0 / (x + 1.0) + (x + 1.0)**math.log2(1.5) - 1.0
-    print(f"""{self.name} is a happily restuffed Blahaj!
- - ({self.fluffiness*100:.0f}% fluffiness).""")
-
-  def __str__(self):
-    return f"{self.name} is best {self.color} colored Blahahj!"
-
-  def set_cute(self, cute: bool = True):
-    if cute is True:
-      print(f"{self.name} will always be the cutest Blahaj!")
-    else:
-      print(f"Yes {self.name} is indeed the cutest Blahaj!")
-    self.cute = cute
-
-
-jerold = Plush("Jerold")
-print(jerold)
-jerold.size = Size.LARGE
-jerold.squish()
-jerold.squish()
-jerold.change_color("blue")
-jerold.stuff()
-print()
-
-maximilian = Blahaj("Max", Size.SMALL, "red")
-print(f"{maximilian.name} is a {maximilian.size.name.title()} Blahaj.")
-maximilian.set_cute(True)
-print(maximilian)
-maximilian.change_color("orange")
-maximilian.size = Size.EXTRA_LARGE
-maximilian.squish()
-maximilian.stuff()
-maximilian.squish()
-
-print()
-print()
-
-# Question 3: Write a player object and an enemy object; include a function on each
-# called attack and a member called health
+def plural(value) -> str:
+  return 's' if value != 1 else ''
 
 
 class Pawn:
@@ -208,15 +78,9 @@ class Pawn:
     return True
 
 
-# Question 4: Write the code required for the player to attack the enemy and reflect
-# a health change on the enemy
-# (hint you can pass an instance of the enemy object
-# into the attack function on the player object)
-
-
 class Player(Pawn):
   score = 0
-
+  
   def __init__(self,
                pos: Optional[int] = None,
                health=100.0,
@@ -283,38 +147,11 @@ class Enemy(Pawn):
       self._pos += self.speed
 
 
-# Challenge: Create a small game using the above objects where the player can choose
-# to attack the enemy or run, end the game once the enemy has been
-# defeated or the player has escaped
-
-
 class Effect:
-
   def __init__(self, pos: int, render: str = '~', lifetime: float = 1.0):
     self.pos = pos
     self.render = render
     self.lifetime = lifetime
-
-
-input("Press Enter when you are ready to play a game :3\n...")
-
-
-def clear_screen():
-  print(end="\033c", flush=True)
-
-
-def clamp(x, a, b):
-  assert (a <= b)
-  return max(a, min(b, x))
-
-
-def plural(value) -> str:
-  return 's' if value != 1 else ''
-
-
-instructions = " - Move: A,D,←,→  Attack: W,↑,SPACE -"
-header_func = lambda health, attack_damage, boss_health: f" - HP:{health:02.0f} - DMG:{attack_damage:02.0f} - BOSS:{boss_health:.0f} -"
-footer_func = lambda rounds, score, framerate, elapsed: f" - r:{int(rounds)} s:{score} fps:{framerate:.0f} - t:{elapsed:.0f} -"
 
 
 class Game:
@@ -509,48 +346,46 @@ You scored {self.player.score} point{plural(self.player.score)} in {self.rounds}
     self.running = False
 
 
-difficulties = range(1, 5)
-difficulty = -1
-
-pick = 1
-
-
-def choose_difficulty():
-  blink = False
-  while True:
-    blink = not blink
-    clear_screen()
-    choices = ""
-    for n in difficulties:
-      choices += f"{'X' if blink and pick == n else n}. {'<-' if pick == n else ''}\n"
-    print(f""" -- Welcome to The Trans Academy Week 4 PvP Game! --
-Select your difficulty:
-{choices}""")
-    time.sleep(2 / 3)
-
-
-choosing = Process(target=choose_difficulty)
-choosing.start()
-while True:
-  key = getkey()
-  if key in (keys.DOWN, keys.PAGE_DOWN, 's', 'j'):
-    pick = pick % len(difficulties) + 1
-  elif key in (keys.UP, keys.PAGE_UP, 'w', 'k'):
-    pick = (pick - 2) % len(difficulties) + 1
-  elif key == keys.HOME:
-    pick = difficulties[0]
-  elif key == keys.END:
-    pick = difficulties[-1]
-  elif key == keys.SPACE or key == keys.ENTER:
-    break
-  else:
-    continue
-  choosing.terminate()
+if __name__ == '__main__':
+  difficulties = range(1, 5)
+  difficulty = -1
+  pick = 1
+  
+  def choose_difficulty():
+    blink = False
+    while True:
+      blink = not blink
+      clear_screen()
+      choices = ""
+      for n in difficulties:
+        choices += f"{'X' if blink and pick == n else n}. {'<-' if pick == n else ''}\n"
+      print(f""" -- Welcome to The Trans Academy Week 4 PvP Game! --
+  Select your difficulty:
+  {choices}""")
+      time.sleep(2 / 3)
+  
   choosing = Process(target=choose_difficulty)
   choosing.start()
-if choosing.is_alive():
-  choosing.terminate()
-clear_screen()
-
-game = Game(difficulty=pick)
-game.start()
+  while True:
+    key = getkey()
+    if key in (keys.DOWN, keys.PAGE_DOWN, 's', 'j'):
+      pick = pick % len(difficulties) + 1
+    elif key in (keys.UP, keys.PAGE_UP, 'w', 'k'):
+      pick = (pick - 2) % len(difficulties) + 1
+    elif key == keys.HOME:
+      pick = difficulties[0]
+    elif key == keys.END:
+      pick = difficulties[-1]
+    elif key == keys.SPACE or key == keys.ENTER:
+      break
+    else:
+      continue
+    choosing.terminate()
+    choosing = Process(target=choose_difficulty)
+    choosing.start()
+  if choosing.is_alive():
+    choosing.terminate()
+  clear_screen()
+  
+  game = Game(difficulty=pick)
+  game.start()
