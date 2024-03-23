@@ -360,8 +360,8 @@ if __name__ == '__main__':
       for n in difficulties:
         choices += f"{'X' if blink and pick == n else n}. {'<-' if pick == n else ''}\n"
       print(f""" -- Welcome to The Trans Academy Week 4 PvP Game! --
-  Select your difficulty:
-  {choices}""")
+Select your difficulty:
+{choices}""")
       time.sleep(2 / 3)
   
   choosing = Process(target=choose_difficulty)
