@@ -74,7 +74,7 @@ class Pawn:
   def damage(self, target) -> bool:
     if not isinstance(target, Pawn):
       return False
-    target.health -= self.attack_damage
+    target.health = max(0.0, target.health - self.attack_damage)
     return True
 
 
