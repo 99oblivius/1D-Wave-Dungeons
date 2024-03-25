@@ -66,10 +66,10 @@ class Pawn:
     self._pos = float(value)
 
   def left(self):
-    self.pos -= self.speed
+    self._pos -= self.speed
 
   def right(self):
-    self.pos += self.speed
+    self._pos += self.speed
 
   def damage(self, target) -> bool:
     if not isinstance(target, Pawn):
