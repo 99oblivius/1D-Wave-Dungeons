@@ -5,6 +5,7 @@ from typing import List
 from entities import *
 from . import (
     renderer, 
+    event_actions,
     event_handler, 
     update_handler
 )

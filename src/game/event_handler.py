@@ -3,7 +3,7 @@ from getkey import getkey, keys
 from entities import *
 from . import (
     event_actions, 
-    renderer
+    event_actions,
 )
 
 
@@ -33,7 +33,7 @@ def main_menu(state, title: str="", won: bool=False):
         "Shop", 
         "Guide",
         "Exit"]
-    choice = renderer.menu_select(title, won_choices if won else default_choices)
+    choice = event_actions.menu_select(title, won_choices if won else default_choices)
     if not won and choice > 1: choice += 1
     match choice:
         case 1:  # Enter Dungeon
