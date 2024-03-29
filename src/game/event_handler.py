@@ -1,8 +1,10 @@
 from getkey import getkey, keys
 
-from . import event_actions, renderer
 from spawn import *
-
+from . import (
+    event_actions, 
+    renderer
+)
 
 
 def user_input(state, entities):

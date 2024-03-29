@@ -2,6 +2,7 @@ import time
 
 from utils import utils
 
+
 def menu_welcome() -> str:
     return " - Welcome to 1D-Wave-Dungeons - "
 
@@ -32,7 +33,8 @@ def ending_thanks(state, player) -> str:
 You scored {player.score} point{utils.plural(player.score)}
  in {state.rounds} round{utils.plural(state.rounds)}!
  - Come again soon -
- - Made by yours truly <3 Livia"""
+ - Made by yours truly <3 Livia
+Press any key to exit..."""
 
 def start_header(state, entities) -> str:
     header = header_func(entities.player.health, entities.player.attack_damage, sum(enemy.health for enemy in entities.enemies))

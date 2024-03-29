@@ -1,5 +1,6 @@
+from .effect import Effect
 from .pawn import (
   Player, 
-  Enemy
+  Enemy,
+  Pawn,
 )
-from .effect import Effect

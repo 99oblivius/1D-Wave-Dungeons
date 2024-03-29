@@ -1,4 +1,3 @@
-
 def clamp(x, a, b):
   assert (a <= b)
   return max(a, min(b, x))

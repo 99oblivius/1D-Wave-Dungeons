@@ -1,11 +1,10 @@
 import time
 
+from typing import List
 from multiprocessing import Process
 
 from getkey import getkey, keys
 
-from typing import List
-from utils import utils
 from utils import utils, menus
 
 

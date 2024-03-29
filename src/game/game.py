@@ -2,9 +2,7 @@ import time
 
 from typing import List
 
-from spawn.pawn import Player, Enemy
-from spawn.effect import Effect
-
+from spawn import *
 from . import (
     renderer, 
     event_handler, 
