@@ -59,18 +59,22 @@ class Game:
         
         utils.clear_screen()
         if state.slaughtered or state.escaped:
-            entities.player.update(state)
             event_handler.main_menu(state, menus.win_screen(state, entities.player), won=True)
         elif state.died:
-            entities.player.reset()
-            state.rounds = 0
-            state.difficulty = 1
             event_handler.main_menu(state, menus.lost_message(state, entities.player))
         else:
-            state.rounds = 0
             event_handler.main_menu(state, menus.menu_welcome())
         
         if state.playing:
+            if state.died:
+                entities.player.reset()
+                state.rounds = 0
+                state.difficulty = 1
+            elif state.slaughtered or state.escaped:
+                entities.player.update(state)
+            else:
+                state.rounds = 0
+            
             state.frame_time = 1.0 / state.tickrate
             state.rounds += 1
             state.playspace = 12 * state.difficulty
