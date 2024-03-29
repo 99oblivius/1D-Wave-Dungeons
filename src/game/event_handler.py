@@ -1,6 +1,6 @@
 from getkey import getkey, keys
 
-from spawn import *
+from entities import *
 from . import (
     event_actions, 
     renderer

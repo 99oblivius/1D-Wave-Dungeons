@@ -2,7 +2,7 @@ import time
 
 from typing import List
 
-from spawn import *
+from entities import *
 
 
 def attacking(attacker: Pawn, targets: List[Enemy], effects):
