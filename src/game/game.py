@@ -60,11 +60,11 @@ class Game:
         
         utils.clear_screen()
         if state.slaughtered or state.escaped:
-            event_handler.main_menu(state, menus.win_screen(state, entities.player), won=True)
+            event_handler.main_menu(state, entities.player, menus.win_screen(state, entities.player), won=True)
         elif state.died:
-            event_handler.main_menu(state, menus.lost_message(state, entities.player))
+            event_handler.main_menu(state, entities.player, menus.lost_message(state, entities.player))
         else:
-            event_handler.main_menu(state, menus.menu_welcome())
+            event_handler.main_menu(state, entities.player, menus.menu_welcome())
         
         if state.playing:
             if state.died:

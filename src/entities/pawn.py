@@ -1,5 +1,7 @@
 from typing import Optional
 
+from  items import Item
+
 
 class Pawn:
     last_attack = -1.0
@@ -86,7 +88,23 @@ class Player(Pawn):
             'attack_speed': attack_speed,
         }
         self.score = 0
-        self.items = []
+        self.balance = 9999
+        self.inventory = []
+    
+    def buy_item(self, item) -> bool:
+        if self.balance >= item.price:
+            item.count -= 1
+            self.balance -= item.price
+            self.inventory.append(item.single())
+            return True
+        return False
+
+    def use_item(self, item_name):
+        for item in self.inventory:
+            if item.name == item_name:
+                item.use(self)
+                self.inventory.remove(item)
+                break
     
     def reset(self):
         self.pos = 0
