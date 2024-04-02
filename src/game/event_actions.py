@@ -61,8 +61,9 @@ def menu_select(pick, title, choices: List[str]=["1.", "2.", "3."]):
         elif key == keys.SPACE or key == keys.ENTER:
             break
         elif key == keys.ESCAPE:
-            pick = 5
-            break
+            if pick == len(choices):
+                break
+            pick = len(choices)
         else:
             continue
         choosing.terminate()

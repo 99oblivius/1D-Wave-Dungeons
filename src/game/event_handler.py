@@ -37,6 +37,7 @@ def main_menu(state, player, shop, title: str="", won: bool=False):
         case 1:  # Enter Dungeon
             state.playing = True
         case 2:  # Go to next dungeon
+            state.menu_cursor = 1
             state.difficulty += 1
             state.playing = True
         case 3:  # Stats
@@ -44,7 +45,7 @@ def main_menu(state, player, shop, title: str="", won: bool=False):
         case 4:  # Shop
             event_actions.shop_select(player, shop)
         case 5:  # Guide
-            pass
+            event_actions.guide()
         case 6:  # Exit
             state.playing = False
             state.run = False

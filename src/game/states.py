@@ -11,20 +11,64 @@ class GameState:
     ):
         self.game_start_time = None
         self.process = process
-        self.playing = playing
         self.run = True
+
+        self.menu_cursor = 1
+        self.ingame = False
+
+        self.playing = playing
         self.died = False
         self.slaughtered = False
         self.escaped = False
-        self.menu_cursor = 1
 
         self.difficulty = 1
         self.playspace = 12
         self.rounds = 0
 
+        self.round_start = None
+        self.round_end = None
+        self.total_rounds = 0
+        self.max_rounds = 0
+        self.deaths = 0
+
         self.tickrate = 6
         self.delta_time = 1.0 / self.tickrate
         self.frame_time = 0.0
+    
+    def __str__(self):
+        return f"""GameState(
+game_start_time={self.game_start_time}, 
+process={self.process}, 
+run={self.run}, 
+playing={self.playing}, 
+died={self.died}, 
+slaughtered={self.slaughtered}, 
+escaped={self.escaped}, 
+difficulty={self.difficulty}, 
+playspace={self.playspace}, 
+rounds={self.rounds}, 
+round_start={self.round_start}, 
+round_end={self.round_end}, 
+total_rounds={self.total_rounds}, 
+max_rounds={self.max_rounds}, 
+deaths={self.deaths}, 
+tickrate={self.tickrate}, 
+delta_time={self.delta_time}, 
+frame_time={self.frame_time})"""
+    
+    @property
+    def round_ended(self) -> bool:
+        return any((self.slaughtered, self.escaped, self.died))
+    
+    @property
+    def round_time(self):
+        if not self.round_ended or not self.round_start:
+            return 0
+        return int(self.round_end - self.round_start)
+    
+    @property
+    def wins(self):
+        return self.total_rounds - self.deaths
 
 
 class ShopState:

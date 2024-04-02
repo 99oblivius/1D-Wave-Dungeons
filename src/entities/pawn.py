@@ -1,5 +1,3 @@
-import time
-
 from typing import Optional
 
 from items import Item, ItemType

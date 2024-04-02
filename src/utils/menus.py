@@ -1,5 +1,3 @@
-import time
-
 from utils import utils
 
 
@@ -22,9 +20,9 @@ def lost_message(state, player) -> str:
   Score: {player.score}
 """
 
-def win_screen(state, player) -> str:
+def win_screen(state, player, round_time) -> str:
     return f""" - YOU WIN! -
-- It took you {int(time.time() - state.game_start_time)} seconds! -
+- It took you {round_time} seconds! -
   Round{utils.plural(state.rounds)}: {state.rounds}
   Score: {player.score}
 """

@@ -18,9 +18,10 @@ def render(state, entities):
         footer = menus.footer_func(
             state.rounds, 
             entities.player.score, 1.0 / state.frame_time,
-            time.time() - state.game_start_time)
+            time.time() - state.round_start)
         
         frame_buffer += f"{menus.instructions()}\n{header}\n{''.join(field)}\n{footer}"
         print(frame_buffer)
+        print(state)
         frame_buffer = ""
 
