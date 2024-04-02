@@ -5,8 +5,11 @@ from multiprocessing import Process
 from getkey import getkey, keys
 
 from entities import *
-from utils import utils
-from items import Item
+from utils import utils, menus
+from items import Item, Dummy, ItemType
+from . import (
+    states, 
+)
 
 
 def attacking(attacker: Pawn, targets: List[Enemy], effects):
@@ -30,8 +33,7 @@ def attacking(attacker: Pawn, targets: List[Enemy], effects):
                 attacker.damage(target)
     attacker.last_attack = time.time()
 
-def menu_select(title, choices: List[str]=["1.", "2.", "3."]):
-    pick = 1
+def menu_select(pick, title, choices: List[str]=["1.", "2.", "3."]):
     def choices_func():
         blink = False
         while True:
@@ -42,9 +44,10 @@ def menu_select(title, choices: List[str]=["1.", "2.", "3."]):
                 options += f"{'X' if blink and pick == n else n}. {choice + ' <-' if pick == n else choice}\n"
             print(options)
             time.sleep(2/3)
+    
     choosing = Process(target=choices_func)
     choosing.start()
-    time.sleep(1/2)
+    time.sleep(1/3)
     while True:
         key = getkey()
         if key in (keys.DOWN, keys.PAGE_DOWN, 's', 'j'):
@@ -57,9 +60,13 @@ def menu_select(title, choices: List[str]=["1.", "2.", "3."]):
             pick = len(choices)
         elif key == keys.SPACE or key == keys.ENTER:
             break
+        elif key == keys.ESCAPE:
+            pick = 5
+            break
         else:
             continue
         choosing.terminate()
+
         choosing = Process(target=choices_func)
         choosing.start()
     if choosing.is_alive():
@@ -68,50 +75,34 @@ def menu_select(title, choices: List[str]=["1.", "2.", "3."]):
     return pick
 
 
-class ShopState:
-    def __init__(self, items: List[Item], items_per_page: int):
-        self.items_per_page = items_per_page
+def shop_select(player: Player, items: List[Item], items_per_page=7):
+    s = states.ShopState(items, items_per_page)
 
-        self.total_items = len(items)
-        self.total_pages = (self.total_items - 1) // items_per_page + 1
-        self.current_page = 0
-        self.cursor_position = 1
-        self.bought = 0
-    
-    def update(self, items: List[Item]):
-        self.total_items = len(items)
-        self.total_pages = (self.total_items - 1) // self.items_per_page + 1
-        if self.total_items < self.cursor_position:
-            self.cursor_position = self.total_items
-
-
-def shop_select(items, player, items_per_page=4):
-    s = ShopState(items, items_per_page)
-
-    def render_menu(s: ShopState):
+    def render_menu(s: states.ShopState):
         blink = False
         while True:
             blink = not blink
             utils.clear_screen()
-            options = f" - {s.current_page + 1} of {s.total_pages} -"
-            options += f"Player pick: {s.cursor_position}\n"
-            options += f" - Move: W,A,S,D,↑,←,↓,→  Buy: ENTER  Exit: ESCAPE -\n"
-            options += f"Player Balance: {player.balance}\n"
+            options = menus.shop_header(s.current_page, s.total_pages)
+            
+            if s.total_items == 0: options += f"\n - No Items -"
             
             start_index = s.current_page * items_per_page
             end_index = min(start_index + items_per_page, s.total_items)
-            if s.total_items == 0:
-                options += f"\n - No Items -"
             for n, item in enumerate(items[start_index:end_index], start=1):
                 n = n+start_index
-                if s.bought == n:
-                    name = utils.obfuscated(item.name, '~')
-                    s.bought = 0
-                elif player.balance < item.price: name = utils.obfuscated(item.name, 'X')
-                else: name = item.name
+                if item.count < 0:
+                    options += menus.shop_dummy(n, blink, s.cursor_position, item)
+                    continue
 
-                index = 'X'*len(str(n)) if blink and s.cursor_position == n else n
-                options += f"{index}. {name + ' <-' if s.cursor_position == n else name + '   '} Cost:{item.price} x{item.count:02}\n"
+                if s.bought == n:
+                    name = utils.obfuscated(str(item), '~')
+                    s.bought = 0
+                elif player.balance < item.price:
+                    name = utils.obfuscated(str(item), '$')
+                else: name = str(item)
+                options += menus.shop_item(n, blink, s.cursor_position, item, name)
+            options += f"\n - Wallet: {player.balance} -\n"
             print(options)
             time.sleep(2/3)
     choosing = Process(target=render_menu, args=(s,))
@@ -129,7 +120,7 @@ def shop_select(items, player, items_per_page=4):
                 s.current_page = 0
                 if s.current_page > s.total_pages - 1:
                     s.current_page = 0
-
+        
         elif key in (keys.UP, keys.PAGE_UP, 'w'):
             s.cursor_position -= 1
             if s.cursor_position % items_per_page == 0:
@@ -137,7 +128,7 @@ def shop_select(items, player, items_per_page=4):
             if s.current_page < 0:
                 s.current_page = s.total_pages - 1
                 s.cursor_position = s.total_items
-
+        
         elif key in (keys.LEFT, 'a'):
             if s.current_page > 0:
                 s.current_page -= 1
@@ -148,7 +139,7 @@ def shop_select(items, player, items_per_page=4):
                     s.cursor_position = s.total_items
                 else:
                     s.cursor_position = s.cursor_position + (s.total_pages-1) * items_per_page
-
+        
         elif key in (keys.RIGHT, 'd'):
             if s.current_page < s.total_pages - 1:
                 s.current_page += 1
@@ -156,19 +147,86 @@ def shop_select(items, player, items_per_page=4):
             else:
                 s.current_page = 0
                 s.cursor_position = (s.cursor_position - 1) % items_per_page + 1
-
-        elif key == keys.ENTER and s.total_items > 0:
-            selected_index = s.cursor_position - 1
-            if selected_index < s.total_items:
-                print("Item: ", s.cursor_position)
-                print("Item: ", items[selected_index].name)
-                if player.buy_item(items[selected_index]):
-                    s.bought = s.cursor_position
-                if items[s.cursor_position-1].count < 1:
-                    items.pop(selected_index)
         
+        elif (key == keys.ENTER or key == keys.SPACE) and s.total_items > 0:
+            selected_index = s.cursor_position - 1
+            item = items[selected_index]
+            if item.item_type != ItemType.DUMMY and player.buy_item(item):
+                s.bought = s.cursor_position
+                if item.count == 0:
+                    items[selected_index] = Dummy(name=" Sold Out")
         choosing.terminate()
         s.update(items)
+        choosing = Process(target=render_menu, args=(s,))
+        choosing.start()
+    if choosing.is_alive():
+        choosing.terminate()
+    utils.clear_screen()
+
+
+def inventory_menu(state, player, menu_height=5, menu_col_width=30):
+    s = states.InventoryState(player, menu_height, menu_col_width)
+
+    def render_menu(s: states.ShopState):
+        blink = False
+        while True:
+            blink = not blink
+            utils.clear_screen()
+            options = " - Inventory -\n"
+            
+            for col in s.cols:
+                options += utils.ellipse_justified(f"  {ItemType.typename(col)}  ", menu_col_width)
+            options += "\n"
+            for r in range(menu_height):
+                for n, col in enumerate(s.cols):
+                    if r > len(s.rows[n]) - 1:
+                        options += ' ' * menu_col_width
+                    else:
+                        item = s.rows[n][r]
+                        index = 'X' if blink and (s.row_cur == r and s.col_cur == n) else '•'
+                        options += utils.ellipse_justified(f"{index} {item.count}x {item}", menu_col_width-1) + ' '
+                options += "\n"
+            
+            if s.total_items() == 0:
+                options = options.split('\n')[0] + "\n - Empty -"
+            print(options)
+            time.sleep(2/3)
+    
+    choosing = Process(target=render_menu, args=(s,))
+    choosing.start()
+    while True:
+        key = getkey()
+        if key == keys.ESCAPE:
+            break
+        elif not s.rows:
+            continue
+        elif key in (keys.DOWN, keys.PAGE_DOWN, 's'):
+            s.row_cur += 1
+            if s.row_cur > len(s.rows[s.col_cur]) - 1:
+                s.row_cur = 0
+        
+        elif key in (keys.UP, keys.PAGE_UP, 'w'):
+            s.row_cur -= 1
+            if s.row_cur < 0:
+                s.row_cur = len(s.rows[s.col_cur]) - 1
+        
+        elif key in (keys.LEFT, 'a') and s.col_cur > 0:
+            s.col_cur -= 1
+            col_length = len(s.rows[s.col_cur]) - 1
+            if s.row_cur > col_length:
+                s.row_cur = col_length
+
+        elif key in (keys.RIGHT, 'd') and s.col_cur < len(s.cols) - 1:
+            s.col_cur += 1
+            col_length = len(s.rows[s.col_cur]) - 1
+            if s.row_cur > col_length:
+                s.row_cur = col_length
+        
+        elif key == keys.ENTER:
+            pass
+
+        choosing.terminate()
+        s.update(player)
         choosing = Process(target=render_menu, args=(s,))
         choosing.start()
     if choosing.is_alive():

@@ -2,36 +2,18 @@ import time
 
 from typing import List
 
+from items import *
 from entities import *
 from . import (
+    states,
     renderer, 
-    event_actions,
     event_handler, 
     update_handler
 )
 
+from getkey import getkey
+
 from utils import utils, menus
-
-class State:
-    def __init__(self, 
-        process=None, 
-        playing=False
-    ):
-        self.game_start_time = None
-        self.process = process
-        self.playing = playing
-        self.run = True
-        self.died = False
-        self.slaughtered = False
-        self.escaped = False
-
-        self.difficulty = 1
-        self.playspace = 12
-        self.rounds = 0
-
-        self.tickrate = 6
-        self.delta_time = 1.0 / self.tickrate
-        self.frame_time = 0.0
 
 
 class Entities:
@@ -42,7 +24,7 @@ class Entities:
 
 
 class Game:
-    state = State()
+    state = states.GameState()
     entities = Entities()
     def __init__(self):
         self.entities.player = Player(
@@ -53,18 +35,48 @@ class Game:
             attack_damage=20,
             attack_range=2,
             attack_speed=1.0)
+        
+        self.shop = [
+            Dummy(name="Health Potions"),
+            HealthPotion(price=5, strength=50, count=2), 
+            HealthPotion(price=10, strength=100, count=4), 
+            HealthPotion(price=20, strength=250, count=6),
+            HealthPotion(price=40, strength=400, count=44),
+            Dummy(),
+            Dummy(),
+
+            Dummy(name="Strength Potions"),
+            StrengthPotion(price=20, strength=1, count=10),
+            StrengthPotion(price=40, strength=2, count=5),
+            StrengthPotion(price=100, strength=10, count=2),
+            Dummy(name="Range Boost"),
+            RangeBoost(price=10, strength=1, count=1),
+            RangeBoost(price=40, strength=2, count=2),
+
+            Dummy(name="Speed Boost"),
+            SpeedPotion(price=10, strength=1, count=1),
+            SpeedPotion(price=40, strength=2, count=2),
+            SpeedPotion(price=100, strength=10, count=2),
+            Dummy(),
+            Dummy(),
+            Dummy(),
+
+            Dummy(name="Weapons"),
+            Excalibur(price=100, damage=1)
+        ]
     
     def game_loop(self) -> int:
         state = self.state
         entities = self.entities
         
         utils.clear_screen()
+        data = (state, entities.player, self.shop)
         if state.slaughtered or state.escaped:
-            event_handler.main_menu(state, entities.player, menus.win_screen(state, entities.player), won=True)
+            event_handler.main_menu(*data, menus.win_screen(state, entities.player), won=True)
         elif state.died:
-            event_handler.main_menu(state, entities.player, menus.lost_message(state, entities.player))
+            event_handler.main_menu(*data, menus.lost_message(state, entities.player))
         else:
-            event_handler.main_menu(state, entities.player, menus.menu_welcome())
+            event_handler.main_menu(*data, menus.menu_welcome())
         
         if state.playing:
             if state.died:
@@ -114,7 +126,8 @@ class Game:
         self.state.game_start_time = time.time()
         while self.state.run:
             self.game_loop()
-        input(menus.ending_thanks(self.state, self.entities.player))
+        print(menus.ending_thanks(self.state, self.entities.player))
+        getkey()
 
     def pause(self):
         if self.process is not None:

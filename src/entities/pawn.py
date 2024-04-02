@@ -1,7 +1,8 @@
+import time
+
 from typing import Optional
 
-from  items import Item
-
+from items import Item, ItemType
 
 class Pawn:
     last_attack = -1.0
@@ -89,22 +90,36 @@ class Player(Pawn):
         }
         self.score = 0
         self.balance = 9999
-        self.inventory = []
+        self.inventory = {item_type: [] for item_type in ItemType}
     
-    def buy_item(self, item) -> bool:
+    def buy_item(self, item: Item) -> bool:
         if self.balance >= item.price:
             item.count -= 1
+            item = item.take()
             self.balance -= item.price
-            self.inventory.append(item.single())
+
+            location = self.inventory[item.item_type]
+            for it in location:
+                if it == item:
+                    location[location.index(item)].count += 1
+                    break
+            else:
+                location.append(item)
+                self.inventory[item.item_type] = sorted(
+                    self.inventory[item.item_type],
+                    key=lambda x: (-x.count, -x.strength)
+                )
+                print(self.inventory[item.item_type])
+            if item.item_type == ItemType.EFFECT:
+                self.use_item(item, self)
             return True
         return False
 
-    def use_item(self, item_name):
-        for item in self.inventory:
-            if item.name == item_name:
-                item.use(self)
-                self.inventory.remove(item)
-                break
+    def use_item(self, item: Item, target: Pawn):
+        if item.count > 0:
+            item.use(target)
+        if item.count == 0:
+            self.inventory[item.item_type].remove(item)
     
     def reset(self):
         self.pos = 0
