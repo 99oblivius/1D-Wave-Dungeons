@@ -191,7 +191,7 @@ def inventory_menu(state, player, menu_height=5, menu_col_width=30):
             if s.total_items() == 0:
                 options = options.split('\n')[0] + "\n - Empty -"
             print(options)
-            time.sleep(2/3)
+            time.sleep(20/3)
     
     choosing = Process(target=render_menu, args=(s,))
     choosing.start()
@@ -223,8 +223,12 @@ def inventory_menu(state, player, menu_height=5, menu_col_width=30):
             if s.row_cur > col_length:
                 s.row_cur = col_length
         
-        elif key == keys.ENTER:
-            pass
+        elif (key == keys.ENTER or key == keys.SPACE):
+            if len(s.cols) > 0 and len(player.inventory[s.cols[s.col_cur]]) > 0:
+                col = player.inventory[s.cols[s.col_cur]]
+                player.use_item(col[s.row_cur], player)
+                if s.row_cur >= len(col):
+                    s.row_cur -= 1
 
         choosing.terminate()
         s.update(player)
