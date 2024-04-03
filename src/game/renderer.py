@@ -1,6 +1,10 @@
 import time
 
 from utils import utils, menus
+from items import ItemType
+from . import (
+    states, 
+)
 
 
 def render(state, entities):
@@ -25,3 +29,55 @@ def render(state, entities):
         print(state)
         frame_buffer = ""
 
+def shop(s: states.ShopState, player, items):
+    blink = False
+    while True:
+        blink = not blink
+        utils.clear_screen()
+        options = menus.shop_header(s.current_page, s.total_pages)
+        
+        if s.total_items == 0: options += f"\n - No Items -"
+        
+        start_index = s.current_page * s.items_per_page
+        end_index = min(start_index + s.items_per_page, s.total_items)
+        for n, item in enumerate(items[start_index:end_index], start=1):
+            n = n+start_index
+            if item.count < 0:
+                options += menus.shop_dummy(n, blink, s.cursor_position, item)
+                continue
+
+            if s.bought == n:
+                name = utils.obfuscated(str(item), '~')
+                s.bought = 0
+            elif player.balance < item.price:
+                name = utils.obfuscated(str(item), '$')
+            else: name = str(item)
+            options += menus.shop_item(n, blink, s.cursor_position, item, name)
+        options += f"\n - Wallet: {player.balance} -\n"
+        print(options)
+        time.sleep(2/3)
+
+def inventory(s: states.ShopState):
+    blink = False
+    while True:
+        blink = not blink
+        utils.clear_screen()
+        options = " - Inventory -\n"
+        
+        for col in s.cols:
+            options += utils.ellipse_justified(f"  {ItemType.typename(col)}  ", s.menu_col_width)
+        options += "\n"
+        for r in range(s.menu_height):
+            for n, col in enumerate(s.cols):
+                if r > len(s.rows[n]) - 1:
+                    options += ' ' * s.menu_col_width
+                else:
+                    item = s.rows[n][r]
+                    index = 'X' if blink and (s.row_cur == r and s.col_cur == n) else '•'
+                    options += utils.ellipse_justified(f"{index} {item.count}x {item}", s.menu_col_width-1) + ' '
+            options += "\n"
+        
+        if s.total_items() == 0:
+            options = options.split('\n')[0] + "\n - Empty -"
+        print(options)
+        time.sleep(2/3)

@@ -5,10 +5,11 @@ from multiprocessing import Process
 from getkey import getkey, keys
 
 from entities import *
-from utils import utils, menus
+from utils import utils
 from items import Item, Dummy, ItemType
 from . import (
     states, 
+    renderer
 )
 
 
@@ -79,34 +80,7 @@ def menu_select(pick, title, choices: List[str]=["1.", "2.", "3."]):
 def shop_select(player: Player, items: List[Item], items_per_page=7):
     s = states.ShopState(items, items_per_page)
 
-    def render_menu(s: states.ShopState):
-        blink = False
-        while True:
-            blink = not blink
-            utils.clear_screen()
-            options = menus.shop_header(s.current_page, s.total_pages)
-            
-            if s.total_items == 0: options += f"\n - No Items -"
-            
-            start_index = s.current_page * items_per_page
-            end_index = min(start_index + items_per_page, s.total_items)
-            for n, item in enumerate(items[start_index:end_index], start=1):
-                n = n+start_index
-                if item.count < 0:
-                    options += menus.shop_dummy(n, blink, s.cursor_position, item)
-                    continue
-
-                if s.bought == n:
-                    name = utils.obfuscated(str(item), '~')
-                    s.bought = 0
-                elif player.balance < item.price:
-                    name = utils.obfuscated(str(item), '$')
-                else: name = str(item)
-                options += menus.shop_item(n, blink, s.cursor_position, item, name)
-            options += f"\n - Wallet: {player.balance} -\n"
-            print(options)
-            time.sleep(2/3)
-    choosing = Process(target=render_menu, args=(s,))
+    choosing = Process(target=renderer.shop, args=(s, player, items))
     choosing.start()
     while True:
         key = getkey()
@@ -158,7 +132,7 @@ def shop_select(player: Player, items: List[Item], items_per_page=7):
                     items[selected_index] = Dummy(name=" Sold Out")
         choosing.terminate()
         s.update(items)
-        choosing = Process(target=render_menu, args=(s,))
+        choosing = Process(target=renderer.shop, args=(s, player, items))
         choosing.start()
     if choosing.is_alive():
         choosing.terminate()
@@ -167,33 +141,8 @@ def shop_select(player: Player, items: List[Item], items_per_page=7):
 
 def inventory_menu(state, player, menu_height=5, menu_col_width=30):
     s = states.InventoryState(player, menu_height, menu_col_width)
-
-    def render_menu(s: states.ShopState):
-        blink = False
-        while True:
-            blink = not blink
-            utils.clear_screen()
-            options = " - Inventory -\n"
-            
-            for col in s.cols:
-                options += utils.ellipse_justified(f"  {ItemType.typename(col)}  ", menu_col_width)
-            options += "\n"
-            for r in range(menu_height):
-                for n, col in enumerate(s.cols):
-                    if r > len(s.rows[n]) - 1:
-                        options += ' ' * menu_col_width
-                    else:
-                        item = s.rows[n][r]
-                        index = 'X' if blink and (s.row_cur == r and s.col_cur == n) else '•'
-                        options += utils.ellipse_justified(f"{index} {item.count}x {item}", menu_col_width-1) + ' '
-                options += "\n"
-            
-            if s.total_items() == 0:
-                options = options.split('\n')[0] + "\n - Empty -"
-            print(options)
-            time.sleep(20/3)
     
-    choosing = Process(target=render_menu, args=(s,))
+    choosing = Process(target=renderer.inventory, args=(s,))
     choosing.start()
     while True:
         key = getkey()
@@ -229,10 +178,12 @@ def inventory_menu(state, player, menu_height=5, menu_col_width=30):
                 player.use_item(col[s.row_cur], player)
                 if s.row_cur >= len(col):
                     s.row_cur -= 1
+                if s.col_cur >= len(s.cols):
+                    s.col_cur -= 1
 
         choosing.terminate()
         s.update(player)
-        choosing = Process(target=render_menu, args=(s,))
+        choosing = Process(target=renderer.inventory, args=(s,))
         choosing.start()
     if choosing.is_alive():
         choosing.terminate()
