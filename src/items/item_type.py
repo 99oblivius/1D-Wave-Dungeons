@@ -18,4 +18,3 @@ class ItemType(IntEnum):
             ItemType.DEBUFF: "Debuff",
             ItemType.MISCEL: "Misc",
         }[t]
-
