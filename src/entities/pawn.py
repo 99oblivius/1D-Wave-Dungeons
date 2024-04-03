@@ -61,6 +61,7 @@ class Player(Pawn):
     def __init__(self,
         pos: int = 0,
         health=100.0,
+        balance=0,
         speed=1.0,
         render='p',
         attack_render='~',
@@ -85,7 +86,7 @@ class Player(Pawn):
             'attack_speed': attack_speed,
         }
         self.score = 0
-        self.balance = 9999
+        self.balance = balance
         self.inventory = {item_type: [] for item_type in ItemType}
     
     def buy_item(self, item: items.Item) -> bool:

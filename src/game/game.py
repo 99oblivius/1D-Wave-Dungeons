@@ -30,6 +30,7 @@ class Game:
         self.entities.player = Player(
             health=100,
             speed=1.0,
+            balance=30,
             render='p',
             attack_render='~',
             attack_damage=20,
@@ -53,10 +54,10 @@ class Game:
             items.RangeBoost(price=10, strength=1, count=1),
             items.RangeBoost(price=40, strength=2, count=2),
 
-            items.Dummy(name="Speed Boost"),
-            items.SpeedPotion(price=10, strength=1, count=1),
-            items.SpeedPotion(price=40, strength=2, count=2),
-            items.SpeedPotion(price=100, strength=10, count=2),
+            items.Dummy(name="Haste Potions"),
+            items.HastePotion(price=10, strength=1, count=1),
+            items.HastePotion(price=40, strength=2, count=2),
+            items.HastePotion(price=100, strength=10, count=2),
             items.Dummy(),
             items.Dummy(),
             items.Dummy(),

@@ -34,6 +34,7 @@ def update(state, entities):
 
         if enemy.health <= 0:
             player.score += enemy.points
+            player.balance += enemy.points
             kill.append(enemy)
     for enemy in kill:
         enemies.remove(enemy)

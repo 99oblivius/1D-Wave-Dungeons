@@ -128,7 +128,7 @@ def shop_menu(player: Player, shop_items: List[items.Item], items_per_page=7):
 def inventory_menu(state, player, menu_height=5, menu_col_width=30):
     s = states.InventoryState(player, menu_height, menu_col_width)
     
-    choosing = Process(target=renderer.inventory, args=(s,))
+    choosing = Process(target=renderer.inventory, args=(s, player))
     choosing.start()
     while True:
         key = getkey()
@@ -169,7 +169,7 @@ def inventory_menu(state, player, menu_height=5, menu_col_width=30):
 
         choosing.terminate()
         s.update(player)
-        choosing = Process(target=renderer.inventory, args=(s,))
+        choosing = Process(target=renderer.inventory, args=(s, player))
         choosing.start()
     if choosing.is_alive():
         choosing.terminate()

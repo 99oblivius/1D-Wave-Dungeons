@@ -44,7 +44,7 @@ def main_menu(state, player, shop, title: str="", won: bool=False):
         case 4:  # Shop
             event_handler.shop_menu(player, shop)
         case 5:  # Guide
-            event_handler.guide()
+            event_handler.guide(state, player)
         case 6:  # Exit
             state.playing = False
             state.run = False

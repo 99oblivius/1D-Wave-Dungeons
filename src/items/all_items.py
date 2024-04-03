@@ -78,10 +78,10 @@ class StrengthPotion(Item):
     def __str__(self):
         return f"{self.name} - {self.strength}"
 
-class SpeedPotion(Item):
+class HastePotion(Item):
     def __init__(self, price: int=10, strength: int=1, *args, **kwargs):
         super().__init__(
-            name="Speed Pot", 
+            name="Haste Pot", 
             price=price, 
             strength=strength, 
             item_type=ItemType.ACTIVE, 

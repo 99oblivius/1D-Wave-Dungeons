@@ -2,6 +2,7 @@ import time
 
 from utils import utils, menus
 from items import ItemType
+import entities
 from . import (
     states, 
 )
@@ -12,14 +13,14 @@ def menu(pick, title, choices):
     while True:
         blink = not blink
         utils.clear_screen()
-        options = f"{title}\n"
+        lines = f"{title}\n"
         for n, choice in enumerate(choices, start=1):
-            options += f"{'X' if blink and pick == n else n}. {choice + ' <-' if pick == n else choice}\n"
-        print(options)
+            lines += f"{'X' if blink and pick == n else n}. {choice + ' <-' if pick == n else choice}\n"
+        print(lines)
         time.sleep(2/3)
 
 def game(state, entities):
-    frame_buffer = ""
+    lines = ""
     field = ['_'] * state.playspace
     for i in entities.effects + entities.enemies + [entities.player]:
         if i.pos is not None and 0 <= i.pos < state.playspace:
@@ -35,25 +36,25 @@ def game(state, entities):
             entities.player.score, 1.0 / state.frame_time,
             time.time() - state.round_start)
         
-        frame_buffer += f"{menus.instructions()}\n{header}\n{''.join(field)}\n{footer}"
-        print(frame_buffer)
-        frame_buffer = ""
+        lines += f"{menus.instructions()}\n{header}\n{''.join(field)}\n{footer}"
+        print(lines)
+        lines = ""
 
-def shop(s: states.ShopState, player, items):
+def shop(s: states.ShopState, player: entities.Player, items):
     blink = False
     while True:
         blink = not blink
         utils.clear_screen()
-        options = menus.shop_header(s.current_page, s.total_pages)
+        lines = menus.shop_header(s.current_page, s.total_pages)
         
-        if s.total_items == 0: options += f"\n - No Items -"
+        if s.total_items == 0: lines += f"\n - No Items -"
         
         start_index = s.current_page * s.items_per_page
         end_index = min(start_index + s.items_per_page, s.total_items)
         for n, item in enumerate(items[start_index:end_index], start=1):
             n = n+start_index
             if item.count < 0:
-                options += menus.shop_dummy(n, blink, s.cursor_position, item)
+                lines += menus.shop_dummy(n, blink, s.cursor_position, item)
                 continue
 
             if s.bought == n:
@@ -62,32 +63,37 @@ def shop(s: states.ShopState, player, items):
             elif player.balance < item.price:
                 name = utils.obfuscated(str(item), '$')
             else: name = str(item)
-            options += menus.shop_item(n, blink, s.cursor_position, item, name)
-        options += f"\n - Wallet: {player.balance} -\n"
-        print(options)
+            lines += menus.shop_item(n, blink, s.cursor_position, item, name)
+        lines += f"\n - Wallet: {player.balance} -\n"
+        print(lines)
         time.sleep(2/3)
 
-def inventory(s: states.InventoryState):
+def inventory(s: states.InventoryState, player: entities.Player):
     blink = False
     while True:
         blink = not blink
         utils.clear_screen()
-        options = " - Inventory -\n"
+        lines = " - Inventory -\n"
         
         for col in s.cols:
-            options += utils.ellipse_justified(f"  {ItemType.typename(col)}  ", s.menu_col_width)
-        options += "\n"
+            lines += utils.ellipse_justified(f"  {ItemType.typename(col)}  ", s.menu_col_width)
+        lines += "\n"
         for r in range(s.menu_height):
             for n, col in enumerate(s.cols):
                 if r > len(s.rows[n]) - 1:
-                    options += ' ' * s.menu_col_width
+                    lines += ' ' * s.menu_col_width
                 else:
                     item = s.rows[n][r]
                     index = 'X' if blink and (s.row_cur == r and s.col_cur == n) else '•'
-                    options += utils.ellipse_justified(f"{index} {item.count}x {item}", s.menu_col_width-1) + ' '
-            options += "\n"
+                    lines += utils.ellipse_justified(f"{index} {item.count}x {item}", s.menu_col_width-1) + ' '
+            lines += "\n"
         
         if s.total_items() == 0:
-            options = options.split('\n')[0] + "\n - Empty -"
-        print(options)
+            lines = lines.split('\n')[0] + "\n - Empty -"
+        lines += f"""\n
+Stats:
+ - Health:{player.health:g} Balance:{player.balance:g} -
+ - attD:{player.attack_damage:.0f} attS:{player.attack_speed:.0f} attR:{player.attack_range:.0f} -
+"""
+        print(lines)
         time.sleep(2/3)
