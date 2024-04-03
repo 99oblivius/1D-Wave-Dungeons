@@ -25,6 +25,7 @@ def main_menu(state, player, shop, title: str="", won: bool=False):
         "Enter Dungeon", 
         "Inventory",
         "Shop", 
+        "Stats",
         "Guide",
         "Exit"]
     if won: choices.insert(1, "Go to Next Dungeon")
@@ -43,8 +44,10 @@ def main_menu(state, player, shop, title: str="", won: bool=False):
             event_handler.inventory_menu(state, player)
         case 4:  # Shop
             event_handler.shop_menu(player, shop)
-        case 5:  # Guide
+        case 5:  # Stats
+            event_handler.stats(state)
+        case 6:  # Guide
             event_handler.guide(state, player)
-        case 6:  # Exit
+        case 7:  # Exit
             state.playing = False
             state.run = False

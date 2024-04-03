@@ -4,8 +4,8 @@ from multiprocessing import Process
 
 from getkey import getkey, keys
 
-from entities import *
-from utils import utils
+import entities
+from utils import utils, menus
 from items import items, ItemType
 from . import (
     states, 
@@ -13,7 +13,7 @@ from . import (
 )
 
 
-def attacking(attacker: Pawn, targets: List[Enemy], effects):
+def attacking(attacker: entities.Pawn, targets: List[entities.Enemy], effects):
     if attacker.last_attack + 1 / attacker.attack_speed > time.time():
         return
     effects.extend([])
@@ -21,7 +21,7 @@ def attacking(attacker: Pawn, targets: List[Enemy], effects):
         effect_pos = (-1)**int(attacker.left_facing) * n + attacker.pos
         if n > 0:
             effects.append(
-                Effect(
+                entities.Effect(
                     pos=effect_pos, 
                     render=attacker.attack_render, 
                     lifetime=0.15
@@ -63,7 +63,7 @@ def menu(pick, title, choices: List[str]=["1.", "2.", "3."]):
     return pick
 
 
-def shop_menu(player: Player, shop_items: List[items.Item], items_per_page=7):
+def shop_menu(player: entities.Player, shop_items: List[items.Item], items_per_page=7):
     s = states.ShopState(shop_items, items_per_page)
 
     choosing = Process(target=renderer.shop, args=(s, player, shop_items))
@@ -175,5 +175,14 @@ def inventory_menu(state, player, menu_height=5, menu_col_width=30):
         choosing.terminate()
     utils.clear_screen()
 
-def guide(state, player):
+def stats(state: states.GameState):
+    while True:
+        lines = menus.stats_header()
+        lines += f"\n{state}"
+        print(lines)
+        if getkey() in (keys.ESCAPE, keys.SPACE,keys.ENTER):
+            break
+        utils.clear_screen()
+
+def guide(state: states.GameState, player: entities.Player):
     print()

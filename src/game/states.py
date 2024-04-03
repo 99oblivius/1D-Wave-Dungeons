@@ -1,3 +1,6 @@
+import time
+from datetime import datetime
+
 from typing import List
 
 from items import items
@@ -37,7 +40,7 @@ class GameState:
     
     def __str__(self):
         return f"""GameState(
-game_start_time={self.game_start_time}, 
+game_start_time={datetime.fromtimestamp(self.game_start_time)}, 
 process={self.process}, 
 run={self.run}, 
 playing={self.playing}, 
@@ -47,8 +50,8 @@ escaped={self.escaped},
 difficulty={self.difficulty}, 
 playspace={self.playspace}, 
 rounds={self.rounds}, 
-round_start={self.round_start}, 
-round_end={self.round_end}, 
+round_start={datetime.fromtimestamp(self.round_start) if self.round_start is not None else None}, 
+round_end={datetime.fromtimestamp(self.round_end) if self.round_end is not None else None}, 
 total_rounds={self.total_rounds}, 
 max_rounds={self.max_rounds}, 
 deaths={self.deaths}, 
