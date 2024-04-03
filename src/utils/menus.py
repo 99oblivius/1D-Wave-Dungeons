@@ -57,5 +57,8 @@ def shop_item(n, blink, cursor, item, name) -> str:
 def stats_header() -> str:
     return " - Exit: ESCAPE,SPACE,ENTER -"
 
+def guide_header() -> str:
+    return "\n - COMING SOON -"
+
 
 # Move: W,A,S,D,↑,←,↓,→

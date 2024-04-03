@@ -41,7 +41,7 @@ def main_menu(state, player, shop, title: str="", won: bool=False):
             state.difficulty += 1
             state.playing = True
         case 3:  # Stats
-            event_handler.inventory_menu(state, player)
+            event_handler.inventory_menu(player)
         case 4:  # Shop
             event_handler.shop_menu(player, shop)
         case 5:  # Stats

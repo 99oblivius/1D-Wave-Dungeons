@@ -92,6 +92,19 @@ class Game:
         
         if state.playing:
             state.max_rounds = max(state.max_rounds, state.rounds)
+            if state.died:
+                entities.player.reset()
+                state.rounds = 0
+                state.total_rounds += 1
+                state.deaths += 1
+                state.difficulty = 1
+            elif state.slaughtered or state.escaped:
+                entities.player.update(state)
+            else:
+                state.rounds = 0
+            
+            state.playspace = 12 * state.difficulty
+
             if not state.ingame:
                 state.round_start = time.time()
                 state.round_end = None
@@ -105,21 +118,9 @@ class Game:
                     points=state.rounds+1)
                 for n, _ in enumerate(range(int(state.difficulty * state.difficulty / 3 + 1)))]
                 entities.effects = []
-            if state.died:
-                entities.player.reset()
-                state.rounds = 0
-                state.total_rounds += 1
-                state.deaths += 1
-                state.difficulty = 1
-            elif state.slaughtered or state.escaped:
-                entities.player.update(state)
-            else:
-                state.rounds = 0
-            
             state.ingame = True
             state.frame_time = 1.0 / state.tickrate
             state.rounds += 1
-            state.playspace = 12 * state.difficulty
             state.died = False
             state.slaughtered = False
             state.escaped = False

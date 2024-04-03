@@ -125,7 +125,7 @@ def shop_menu(player: entities.Player, shop_items: List[items.Item], items_per_p
     utils.clear_screen()
 
 
-def inventory_menu(state, player, menu_height=5, menu_col_width=30):
+def inventory_menu(player, menu_height=5, menu_col_width=30):
     s = states.InventoryState(player, menu_height, menu_col_width)
     
     choosing = Process(target=renderer.inventory, args=(s, player))
@@ -185,4 +185,9 @@ def stats(state: states.GameState):
         utils.clear_screen()
 
 def guide(state: states.GameState, player: entities.Player):
-    print()
+    while True:
+        lines = menus.guide_header()
+        print(lines)
+        if getkey():
+            break
+        utils.clear_screen()

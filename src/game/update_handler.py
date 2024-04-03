@@ -17,7 +17,7 @@ def update(state, entities):
     # Enemy update
     kill = []
     for n, enemy in enumerate(enemies):
-        old_positions = enemies[n + 1:]
+        old_positions = enemies[:n] + enemies[n+1:]
         if enemy.pos > player.pos:
             enemy.facing_left = True
             blocked = any((True for e in old_positions if 0 < enemy.pos - e.pos < 2))
