@@ -7,7 +7,18 @@ from . import (
 )
 
 
-def render(state, entities):
+def menu(pick, title, choices):
+    blink = False
+    while True:
+        blink = not blink
+        utils.clear_screen()
+        options = f"{title}\n"
+        for n, choice in enumerate(choices, start=1):
+            options += f"{'X' if blink and pick == n else n}. {choice + ' <-' if pick == n else choice}\n"
+        print(options)
+        time.sleep(2/3)
+
+def game(state, entities):
     frame_buffer = ""
     field = ['_'] * state.playspace
     for i in entities.effects + entities.enemies + [entities.player]:
@@ -26,7 +37,6 @@ def render(state, entities):
         
         frame_buffer += f"{menus.instructions()}\n{header}\n{''.join(field)}\n{footer}"
         print(frame_buffer)
-        print(state)
         frame_buffer = ""
 
 def shop(s: states.ShopState, player, items):
@@ -57,7 +67,7 @@ def shop(s: states.ShopState, player, items):
         print(options)
         time.sleep(2/3)
 
-def inventory(s: states.ShopState):
+def inventory(s: states.InventoryState):
     blink = False
     while True:
         blink = not blink

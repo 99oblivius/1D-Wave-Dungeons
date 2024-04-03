@@ -14,7 +14,7 @@ class ItemType(IntEnum):
         return {
             ItemType.ACTIVE: "Active",
             ItemType.EFFECT: "Effect",
-            ItemType.WEAPON: "Weapon",
+            ItemType.WEAPON: "Weapon (unimplemented)",
             ItemType.DEBUFF: "Debuff",
             ItemType.MISCEL: "Misc",
         }[t]

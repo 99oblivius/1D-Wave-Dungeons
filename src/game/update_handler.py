@@ -1,4 +1,4 @@
-from . import event_actions
+from . import event_handler
 
 
 def update(state, entities):
@@ -30,7 +30,7 @@ def update(state, entities):
             if not blocked and player.pos - enemy.pos > 1:
                 enemy.right()
         if abs(enemy.pos - player.pos) <= enemy.attack_range:
-            event_actions.attacking(enemy, [player], effects)
+            event_handler.attacking(enemy, [player], effects)
 
         if enemy.health <= 0:
             player.score += enemy.points

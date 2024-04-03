@@ -2,12 +2,12 @@ import time
 
 from typing import List
 
-from items import *
+from items import items
 from entities import *
 from . import (
+    actions,
     states,
     renderer, 
-    event_handler, 
     update_handler
 )
 
@@ -37,32 +37,33 @@ class Game:
             attack_speed=1.0)
         
         self.shop = [
-            Dummy(name="Health Potions"),
-            HealthPotion(price=5, strength=50, count=2), 
-            HealthPotion(price=10, strength=100, count=4), 
-            HealthPotion(price=20, strength=250, count=6),
-            HealthPotion(price=40, strength=400, count=44),
-            Dummy(),
-            Dummy(),
+            items.Dummy(name="Health"),
+            items.HealthPotion(price=5, strength=50, count=2), 
+            items.HealthPotion(price=10, strength=100, count=4), 
+            items.HealthPotion(price=20, strength=250, count=6),
+            items.HealthPotion(price=40, strength=400, count=44),
+            items.Dummy(),
+            items.Dummy(),
 
-            Dummy(name="Strength Potions"),
-            StrengthPotion(price=20, strength=1, count=10),
-            StrengthPotion(price=40, strength=2, count=5),
-            StrengthPotion(price=100, strength=10, count=2),
-            Dummy(name="Range Boost"),
-            RangeBoost(price=10, strength=1, count=1),
-            RangeBoost(price=40, strength=2, count=2),
+            items.Dummy(name="Strength Potions"),
+            items.StrengthPotion(price=20, strength=1, count=10),
+            items.StrengthPotion(price=40, strength=2, count=5),
+            items.StrengthPotion(price=100, strength=10, count=2),
+            items.Dummy(name="Range Increase"),
+            items.RangeBoost(price=10, strength=1, count=1),
+            items.RangeBoost(price=40, strength=2, count=2),
 
-            Dummy(name="Speed Boost"),
-            SpeedPotion(price=10, strength=1, count=1),
-            SpeedPotion(price=40, strength=2, count=2),
-            SpeedPotion(price=100, strength=10, count=2),
-            Dummy(),
-            Dummy(),
-            Dummy(),
+            items.Dummy(name="Speed Boost"),
+            items.SpeedPotion(price=10, strength=1, count=1),
+            items.SpeedPotion(price=40, strength=2, count=2),
+            items.SpeedPotion(price=100, strength=10, count=2),
+            items.Dummy(),
+            items.Dummy(),
+            items.Dummy(),
 
-            Dummy(name="Weapons"),
-            Excalibur(price=100, damage=1)
+            items.Dummy(name="Weapons (unimplemented)"),
+            items.Excalibur(price=100, damage=1),
+            items.Murasame(price=180, damage=2),
         ]
     
     def game_loop(self) -> int:
@@ -79,20 +80,30 @@ class Game:
                 state.round_end = time.time()
                 
             if state.slaughtered or state.escaped:
-                event_handler.main_menu(*data, menus.win_screen(state, entities.player, state.round_time), won=True)
+                actions.main_menu(*data, menus.win_screen(state, entities.player, state.round_time), won=True)
             elif state.died:
-                event_handler.main_menu(*data, menus.lost_message(state, entities.player))
+                actions.main_menu(*data, menus.lost_message(state, entities.player))
         else:
             if state.ingame:
-                event_handler.main_menu(*data, "MENU")
+                actions.main_menu(*data, "MENU")
             else:
-                event_handler.main_menu(*data, menus.menu_welcome())
+                actions.main_menu(*data, menus.menu_welcome())
         
         if state.playing:
             state.max_rounds = max(state.max_rounds, state.rounds)
             if not state.ingame:
                 state.round_start = time.time()
                 state.round_end = None
+                entities.enemies = [Enemy(
+                    pos=int(state.playspace * 0.8 - 3 * n),
+                    speed=1 / 5,
+                    health=100.0 + (state.difficulty - 1) * 4**(state.difficulty / 3),
+                    attack_damage=utils.clamp((state.difficulty - 1)**0.5 / 2.5 + 1, 20, 100.0),
+                    attack_range=1,
+                    attack_speed=0.5,
+                    points=state.rounds+1)
+                for n, _ in enumerate(range(int(state.difficulty * state.difficulty / 3 + 1)))]
+                entities.effects = []
             if state.died:
                 entities.player.reset()
                 state.rounds = 0
@@ -112,24 +123,14 @@ class Game:
             state.slaughtered = False
             state.escaped = False
 
-            entities.enemies = [Enemy(
-                pos=int(state.playspace * 0.8 - 3 * n),
-                speed=1 / 5,
-                health=100.0 + (state.difficulty - 1) * 4**(state.difficulty / 3),
-                attack_damage=utils.clamp((state.difficulty - 1)**0.5 / 2.5 + 1, 20, 100.0),
-                attack_range=1,
-                attack_speed=0.5,
-                points=state.rounds+1)
-            for n, _ in enumerate(range(int(state.difficulty * state.difficulty / 3 + 1)))]
-            entities.effects = []
             print(menus.start_header(state, entities))
 
         while state.playing:
             last_time = time.time()
             
-            event_handler.user_input(state, entities)
+            actions.user_input(state, entities)
 
-            renderer.render(state, entities)
+            renderer.game(state, entities)
             
             update_handler.update(state, entities)
             

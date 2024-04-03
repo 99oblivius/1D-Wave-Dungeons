@@ -1,6 +1,6 @@
 from typing import List
 
-from items import Item
+from items import items
 from entities import Player
 
 
@@ -72,7 +72,7 @@ frame_time={self.frame_time})"""
 
 
 class ShopState:
-    def __init__(self, items: List[Item], items_per_page: int):
+    def __init__(self, items: List[items.Item], items_per_page: int):
         self.items_per_page = items_per_page
 
         self.total_items = len(items)
@@ -81,7 +81,7 @@ class ShopState:
         self.cursor_position = 1
         self.bought = 0
     
-    def update(self, items: List[Item]):
+    def update(self, items: List[items.Item]):
         self.total_items = len(items)
         self.total_pages = (self.total_items - 1) // self.items_per_page + 1
         if self.total_items < self.cursor_position:
@@ -108,4 +108,6 @@ class InventoryState:
         return sum
     
     def update(self, player: Player):
-        pass
+        items = player.inventory.items()
+        self.cols = [t for t, ls in items if len(ls) > 0]
+        self.rows = [ls for _, ls in items if len(ls) > 0]

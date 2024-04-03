@@ -1,6 +1,6 @@
 from typing import Optional
 
-from items import Item, ItemType
+from items import items, ItemType
 
 class Pawn:
     last_attack = -1.0
@@ -26,13 +26,11 @@ class Pawn:
         self.attack_speed = attack_speed
 
     def __str__(self):
-        attributes = ", ".join(f"{key}={value}"
-                                                     for key, value in vars(self).items())
+        attributes = ", ".join(f"{key}={value}" for key, value in vars(self).items())
         return f"{self.__class__.__name__}({{{attributes}}})"
 
     def __repr__(self):
-        attributes = ", ".join(f"{key}={value}"
-                                                     for key, value in vars(self).items())
+        attributes = ", ".join(f"{key}={value}" for key, value in vars(self).items())
         return f"{self.__class__.__name__}({{{attributes}}})"
 
     @property
@@ -90,7 +88,7 @@ class Player(Pawn):
         self.balance = 9999
         self.inventory = {item_type: [] for item_type in ItemType}
     
-    def buy_item(self, item: Item) -> bool:
+    def buy_item(self, item: items.Item) -> bool:
         if self.balance >= item.price:
             item.count -= 1
             item = item.take()
@@ -113,7 +111,7 @@ class Player(Pawn):
             return True
         return False
 
-    def use_item(self, item: Item, target: Pawn):
+    def use_item(self, item: items.Item, target: Pawn):
         if item.count > 0:
             item.use(target)
         if item.count == 0:
