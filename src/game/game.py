@@ -75,34 +75,31 @@ class Game:
 
         data = (state, entities.player, self.shop)
         if state.round_ended:
-            state.ingame = False
-            state.total_rounds += 1
-            if not state.round_end:
-                state.round_end = time.time()
-                
-            if state.slaughtered or state.escaped:
-                actions.main_menu(*data, menus.win_screen(state, entities.player, state.round_time), won=True)
-            elif state.died:
-                actions.main_menu(*data, menus.lost_message(state, entities.player))
-        else:
             if state.ingame:
-                actions.main_menu(*data, "MENU")
-            else:
-                actions.main_menu(*data, menus.menu_welcome())
+                state.rounds += 1
+                state.total_rounds += 1
+                state.round_end = time.time()
+            state.ingame = False
+        
+        if state.slaughtered or state.escaped:
+            entities.player.update(state)
+        elif state.died:
+            state.rounds = 0
+            state.deaths += 1
+            state.difficulty = 1
+            entities.player.reset()
+        state.max_rounds = max(state.max_rounds, state.rounds)
+            
+        if state.ingame:
+            actions.main_menu(*data, "MENU")
+        elif state.slaughtered or state.escaped:
+            actions.main_menu(*data, menus.win_screen(state, entities.player, state.round_time), won=True)
+        elif state.died:
+            actions.main_menu(*data, menus.lost_message(state, entities.player))
+        else:
+            actions.main_menu(*data, menus.menu_welcome())
         
         if state.playing:
-            state.max_rounds = max(state.max_rounds, state.rounds)
-            if state.died:
-                entities.player.reset()
-                state.rounds = 0
-                state.total_rounds += 1
-                state.deaths += 1
-                state.difficulty = 1
-            elif state.slaughtered or state.escaped:
-                entities.player.update(state)
-            else:
-                state.rounds = 0
-            
             state.playspace = 12 * state.difficulty
 
             if not state.ingame:
@@ -118,29 +115,26 @@ class Game:
                     points=state.rounds+1)
                 for n, _ in enumerate(range(int(state.difficulty * state.difficulty / 3 + 1)))]
                 entities.effects = []
-            state.ingame = True
+            
             state.frame_time = 1.0 / state.tickrate
-            state.rounds += 1
             state.died = False
             state.slaughtered = False
             state.escaped = False
+            state.ingame = True
 
             print(menus.start_header(state, entities))
-
+        
         while state.playing:
-            last_time = time.time()
+            self.t_start = time.time()
             
             actions.user_input(state, entities)
 
             renderer.game(state, entities)
             
             update_handler.update(state, entities)
-            
-            start_time = time.time()
-            state.delta_time = start_time - last_time
 
-            time.sleep(max(0, 1.0 / state.tickrate - self.state.delta_time))
-            state.frame_time = time.time() - last_time
+            self.tick()
+            
 
     def start(self):
         self.state.game_start_time = time.time()
@@ -158,3 +152,8 @@ class Game:
     def close(self):
         self.state.playing = False
         self.state.run = False
+    
+    def tick(self):
+        self.state.delta_time = time.time() - self.t_start
+        time.sleep(max(0, 1.0 / self.state.tickrate - self.state.delta_time))
+        self.state.frame_time = time.time() - self.t_start

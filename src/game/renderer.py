@@ -32,7 +32,7 @@ def game(state, entities):
             sum(enemy.health for enemy in entities.enemies))
         
         footer = menus.footer_func(
-            state.rounds, 
+            state.rounds+1, 
             entities.player.score, 1.0 / state.frame_time,
             time.time() - state.round_start)
         

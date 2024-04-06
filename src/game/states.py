@@ -64,7 +64,7 @@ frame_time={self.frame_time})"""
     
     @property
     def round_time(self):
-        if not self.round_ended or not self.round_start:
+        if self.round_end is None or self.round_start is None:
             return 0
         return int(self.round_end - self.round_start)
     
