@@ -93,7 +93,7 @@ def inventory(s: states.InventoryState, player: entities.Player):
         lines += f"""\n
 Stats:
  - Health:{player.health:g} Balance:{player.balance:g} -
- - attD:{player.attack_damage:.0f} attS:{player.attack_speed:.0f} attR:{player.attack_range:.0f} -
+ - dmg:{player.attack_damage:.0f} attkspeed:{player.attack_speed:.1f} range:{player.attack_range:.0f} -
 """
         print(lines)
         time.sleep(2/3)

@@ -125,7 +125,7 @@ def shop_menu(player: entities.Player, shop_items: List[items.Item], items_per_p
     utils.clear_screen()
 
 
-def inventory_menu(player, menu_height=5, menu_col_width=30):
+def inventory_menu(player: entities.Player, menu_height=5, menu_col_width=30):
     s = states.InventoryState(player, menu_height, menu_col_width)
     
     choosing = Process(target=renderer.inventory, args=(s, player))
