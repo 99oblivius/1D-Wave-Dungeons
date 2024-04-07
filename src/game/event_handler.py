@@ -205,6 +205,12 @@ def guide(state: states.GameState, player: entities.Player):
  slay enemies to earn money. 
 
  Best of luck fighter!
+
+
+ COMING SOON:
+ Weapon slot
+ Item active and passive effects
+ Stat scaling rework
  """
         print(lines)
         if getkey() in (keys.ESCAPE, keys.SPACE,keys.ENTER):
