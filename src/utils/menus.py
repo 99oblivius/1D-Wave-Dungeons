@@ -58,7 +58,7 @@ def stats_header() -> str:
     return " - Exit: ESCAPE,SPACE,ENTER -"
 
 def guide_header() -> str:
-    return "\n - COMING SOON -"
+    return " - Exit: ESCAPE,SPACE,ENTER -"
 
 
 # Move: W,A,S,D,↑,←,↓,→

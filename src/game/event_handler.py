@@ -187,7 +187,27 @@ def stats(state: states.GameState):
 def guide(state: states.GameState, player: entities.Player):
     while True:
         lines = menus.guide_header()
+        lines += f"""
+ A Guide to 1D-Wave-Dungeons
+ 
+ When starting fresh or after a death,
+ you can start your journey by entering the Dungeon.
+
+ You can leave to the main menu at any time and 
+ purchase items from the shop.
+ Pay attention to which items are instant and which
+ land in your inventory first.
+
+ After a victorous fight (or escape) you can 
+ choose to repeat the same dungeon, or increase 
+ the difficulty for better rewards. 
+ 
+ Even though you can escape make sure to 
+ slay enemies to earn money. 
+
+ Best of luck fighter!
+ """
         print(lines)
-        if getkey():
+        if getkey() in (keys.ESCAPE, keys.SPACE,keys.ENTER):
             break
         utils.clear_screen()
