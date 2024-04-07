@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from typing import List
-
 from items import items
 from entities import Player
 
