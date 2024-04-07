@@ -1,7 +1,7 @@
 import time
 
 from utils import utils, menus
-from items import ItemType
+from items import items, ItemType
 import entities
 from . import (
     states, 
@@ -40,7 +40,7 @@ def game(state, entities):
         print(lines)
         lines = ""
 
-def shop(s: states.ShopState, player: entities.Player, items):
+def shop(s: states.ShopState, player: entities.Player, shop_items: list[items.Item]):
     blink = False
     while True:
         blink = not blink
@@ -51,7 +51,7 @@ def shop(s: states.ShopState, player: entities.Player, items):
         
         start_index = s.current_page * s.items_per_page
         end_index = min(start_index + s.items_per_page, s.total_items)
-        for n, item in enumerate(items[start_index:end_index], start=1):
+        for n, item in enumerate(shop_items[start_index:end_index], start=1):
             n = n+start_index
             if item.count < 0:
                 lines += menus.shop_dummy(n, blink, s.cursor_position, item)
@@ -65,6 +65,7 @@ def shop(s: states.ShopState, player: entities.Player, items):
             else: name = str(item)
             lines += menus.shop_item(n, blink, s.cursor_position, item, name)
         lines += f"\n - Wallet: {player.balance} -\n"
+        lines += f"\nDescription: {shop_items[s.cursor_position-1].description}"
         print(lines)
         time.sleep(2/3)
 
@@ -93,7 +94,9 @@ def inventory(s: states.InventoryState, player: entities.Player):
         lines += f"""\n
 Stats:
  - Health:{player.health:g} Balance:{player.balance:g} -
- - dmg:{player.attack_damage:.0f} attkspeed:{player.attack_speed:.1f} range:{player.attack_range:.0f} -
+ - dmg:{player.attack_damage:.0f} atkspeed:{player.attack_speed:.1f} range:{player.attack_range:.0f} -
 """
+        if s.total_items() > 0:
+            lines += f"\nDescription: {s.rows[s.col_cur][s.row_cur].description}"
         print(lines)
         time.sleep(2/3)

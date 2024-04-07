@@ -74,7 +74,7 @@ frame_time={self.frame_time})"""
 
 
 class ShopState:
-    def __init__(self, items: List[items.Item], items_per_page: int):
+    def __init__(self, items: list[items.Item], items_per_page: int):
         self.items_per_page = items_per_page
 
         self.total_items = len(items)
@@ -83,7 +83,7 @@ class ShopState:
         self.cursor_position = 1
         self.bought = 0
     
-    def update(self, items: List[items.Item]):
+    def update(self, items: list[items.Item]):
         self.total_items = len(items)
         self.total_pages = (self.total_items - 1) // self.items_per_page + 1
         if self.total_items < self.cursor_position:

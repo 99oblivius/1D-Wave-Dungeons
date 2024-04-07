@@ -52,7 +52,7 @@ def shop_dummy(n, blink, cursor, item) -> str:
 
 def shop_item(n, blink, cursor, item, name) -> str:
     index = 'X' if blink and cursor == n else '•'
-    return f"  {index} {item.count:g}x ${item.price} {name + ' <-' if cursor == n else name}\n"
+    return f"  {index} {item.count:g}x {name + ' <-' if cursor == n else name} ${item.price}\n"
 
 def stats_header() -> str:
     return " - Exit: ESCAPE,SPACE,ENTER -"

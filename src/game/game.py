@@ -1,7 +1,5 @@
 import time
 
-from typing import List
-
 from items import items
 from entities import *
 from . import (
@@ -19,8 +17,8 @@ from utils import utils, menus
 class Entities:
     def __init__(self):
         self.player = None
-        self.enemies: List[Enemy] = []
-        self.effects: List[Effect] = []
+        self.enemies: list[Enemy] = []
+        self.effects: list[Effect] = []
 
 
 class Game:
@@ -39,7 +37,7 @@ class Game:
         
         self.shop = [
             items.Dummy(name="Health"),
-            items.RejuvenationBead( price=5,    strength=50,                    count=2), 
+            items.RejuvenationBead( price=5,    strength=15,                    count=2), 
             items.MedKit(           price=10,   strength=100,                   count=4), 
             items.CrimsonFlask(     price=20,   strength=250,                   count=6),
             items.HiElixir(         price=40,   strength=400,                   count=44),

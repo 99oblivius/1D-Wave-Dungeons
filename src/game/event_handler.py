@@ -1,5 +1,4 @@
 import time
-from typing import List
 from multiprocessing import Process
 
 from getkey import getkey, keys
@@ -13,7 +12,7 @@ from . import (
 )
 
 
-def attacking(attacker: entities.Pawn, targets: List[entities.Enemy], effects):
+def attacking(attacker: entities.Pawn, targets: list[entities.Enemy], effects):
     if attacker.last_attack + 1 / attacker.attack_speed > time.time():
         return
     effects.extend([])
@@ -32,7 +31,7 @@ def attacking(attacker: entities.Pawn, targets: List[entities.Enemy], effects):
                 attacker.damage(target)
     attacker.last_attack = time.time()
 
-def menu(pick, title, choices: List[str]=["1.", "2.", "3."]):
+def menu(pick, title, choices: list[str]=["1.", "2.", "3."]):
     choosing = Process(target=renderer.menu, args=(pick, title, choices))
     choosing.start()
     time.sleep(1/4)
@@ -63,7 +62,7 @@ def menu(pick, title, choices: List[str]=["1.", "2.", "3."]):
     return pick
 
 
-def shop_menu(player: entities.Player, shop_items: List[items.Item], items_per_page=7):
+def shop_menu(player: entities.Player, shop_items: list[items.Item], items_per_page=7):
     s = states.ShopState(shop_items, items_per_page)
 
     choosing = Process(target=renderer.shop, args=(s, player, shop_items))
